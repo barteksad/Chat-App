@@ -3,7 +3,7 @@ use std::net::SocketAddr;
 use std::sync::{Arc, RwLock};
 
 use chat_app::channel::{Channel, ChannelInfo};
-use chat_app::config::{SERVER_DEFAULT_IP_ADDRESS, SERVER_DEFAULT_PORT};
+use chat_app::config::{SERVER_DEFAULT_IP_ADDRESS, SERVER_DEFAULT_PORT, DB_URL};
 use chat_app::database::{AuthenticationToken, ChatDatabase};
 use chat_app::messages::{ServerMessage, UserMessage};
 use chat_app::utils::{calculate_hash, get_next_user_message, send_to, ChatError};
@@ -18,7 +18,7 @@ use anyhow::{Context, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // // ssh -L 11212:lkdb:5432 bs429589@students.mimuw.edu.pl
+
     env::set_var("RUST_LOG", "debug");
     setup_logging()?;
 
@@ -34,10 +34,9 @@ async fn main() -> Result<()> {
 async fn configure_database() -> Result<Arc<ChatDatabase>> {
     // "postgresql://bs429589:iks@localhost:11212/rust_db"
     let (client, connection) =
-        tokio_postgres::connect("postgresql://bs429589:iks@localhost:11212/bd", NoTls)
+        tokio_postgres::connect(DB_URL, NoTls)
             .await
             .context("Error connecting to database!")?;
-    tracing::debug!("TU");
 
     tokio::spawn({
         async move {
